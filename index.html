@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <title>Παιχνίδι με Αυτοκίνητο</title>
+  <style>
+    body {
+      background: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    #game {
+      position: relative;
+      width: 300px;
+      height: 500px;
+      background: #555;
+      overflow: hidden;
+      border: 3px solid #fff;
+    }
+
+    #car {
+      position: absolute;
+      width: 50px;
+      height: 80px;
+      background: red;
+      bottom: 20px;
+      left: 125px;
+      border-radius: 10px;
+    }
+
+    .enemy {
+      position: absolute;
+      width: 50px;
+      height: 80px;
+      background: black;
+      top: -100px;
+      border-radius: 10px;
+    }
+
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 18px;
+    }
+
+    #controls {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div id="score">Score: 0</div>
+    <div id="car"></div>
+      <div id="controls">
+      <button id="leftBtn">⬅ Αριστερά</button>
+      <button id="rightBtn">Δεξιά ➡</button>
+    </div>
+  </div>
+
+  <script>
+    const car = document.getElementById('car');
+    const game = document.getElementById('game');
+    const scoreEl = document.getElementById('score');
+
+    let carLeft = 125;
+    let score = 0;
+    let gameOver = false;
+
+    function moveLeft() {
+      if (carLeft > 0) {
+        carLeft -= 20;
+        car.style.left = carLeft + 'px';
+      }
+    }
+
+    function moveRight() {
+      if (carLeft < 250) {
+        carLeft += 20;
+        car.style.left = carLeft + 'px';
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (gameOver) return;
+      if (e.key === 'ArrowLeft') moveLeft();
+      if (e.key === 'ArrowRight') moveRight();
+    });
+
+    document.getElementById('leftBtn').addEventListener('click', moveLeft);
+    document.getElementById('rightBtn').addEventListener('click', moveRight);
+
+    function createEnemy() {
+      if (gameOver) return;
+
+      const enemy = document.createElement('div');
+      enemy.classList.add('enemy');
+      enemy.style.left = Math.floor(Math.random() * 250) + 'px';
+      game.appendChild(enemy);
+
+      let enemyTop = -100;
+
+      const moveEnemy = setInterval(() => {
+        if (gameOver) {
+          clearInterval(moveEnemy);
+          return;
+        }
+
+        enemyTop += 5;
+        enemy.style.top = enemyTop + 'px';
+
+        // collision
+        if (
+          enemyTop > 380 &&
+          enemyTop < 460 &&
+          Math.abs(enemy.offsetLeft - carLeft) < 50
+        ) {
+          gameOver = true;
+          alert('Game Over! Score: ' + score);
+          window.location.reload();
+        }
+
+        if (enemyTop > 500) {
+          clearInterval(moveEnemy);
+          enemy.remove();
+          score++;
+          scoreEl.textContent = 'Score: ' + score;
+        }
+      }, 20);
+    }
+
+    setInterval(createEnemy, 1500);
+  </script>
+</body>
+</html>
